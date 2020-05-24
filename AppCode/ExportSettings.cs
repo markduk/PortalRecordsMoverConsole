@@ -13,6 +13,7 @@ namespace PortalRecordsMover.AppCode
         public ExportSettings()
         {
             SettingsFileName = "ExportSettings.json";
+            Config = new MoverSettingsConfig();
         }
 
         #region Properties 
