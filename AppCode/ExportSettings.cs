@@ -6,10 +6,6 @@ using Microsoft.Xrm.Sdk.Metadata;
 using System.Text;
 using System.IO;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-
 namespace PortalRecordsMover.AppCode
 {
     public class ExportSettings
@@ -90,7 +86,11 @@ namespace PortalRecordsMover.AppCode
                 var argValue = arg.Substring(argDelimiterPosition + 1);
                 argsDict.Add(argName.ToLower(), argValue);
 
-                PortalMover.ReportProgress($"command line arg: Name: {argName.ToLower()}, Value: {argValue}");
+                // Don't log passwords!
+                if (argName != "pass")
+                {
+                    PortalMover.ReportProgress($"command line arg: Name: {argName.ToLower()}, Value: {argValue}");
+                }
             }
 
             // check to see if a new settings file was specified 

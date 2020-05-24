@@ -60,7 +60,7 @@ namespace PortalRecordsMover.AppCode
         [JsonProperty("Username", Required = Required.Always)]
         public string Username { get; set; }
 
-        [JsonProperty("Password", Required = Required.Always)]
+        [JsonProperty("Password", Required = Required.Default)]
         public string Password { get; set; }
 
 
