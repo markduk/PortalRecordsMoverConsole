@@ -31,7 +31,7 @@ namespace PortalRecordsMover.AppCode
         [JsonProperty("ModifyFilter", Required = Required.Default)]
         public DateTime? ModifyFilter { get; set; }
 
-        [JsonProperty("PriorDaysToRetrieve", Required = Required.Always)]
+        [JsonProperty("PriorDaysToRetrieve", Required = Required.Default)]
         public long? PriorDaysToRetrieve { get; set; }
 
         [JsonProperty("DateFilterOptions", Required = Required.Default)]
