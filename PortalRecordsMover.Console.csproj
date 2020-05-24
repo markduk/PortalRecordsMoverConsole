@@ -8,15 +8,15 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>GPL v3</Copyright>
-    <PackageId>PortalRecordsMoverConsole</PackageId>
+    <PackageId>PortalRecordsMover.Console</PackageId>
     <Version>0.1.3</Version>
     <Authors>PortalRecordsMoverConsole authors</Authors>
     <Product>PortalRecordsMoverConsole</Product>
     <Company>N/A</Company>
     <Description>This project is console application version of the  MscrmTools.PortalRecordsMover plugin included with the XrmToolbox.</Description>
-    <PackageProjectUrl>https://github.com/leiyu66/PortalRecordsMoverConsole</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/markduk/PortalRecordsMover.Console</PackageProjectUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <RepositoryUrl>https://github.com/leiyu66/PortalRecordsMoverConsole</RepositoryUrl>
+    <RepositoryUrl>https://github.com/markduk/PortalRecordsMover.Console</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="ExportSettings.json">
