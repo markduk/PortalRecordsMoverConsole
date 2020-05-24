@@ -53,7 +53,7 @@ namespace PortalRecordsMover.AppCode
                     throw new ApplicationException("No enitites available to import.");
                 }
 
-                // if any of the website IDs to be imported do not maptch the IDs in the target environment
+                // if any of the website IDs to be imported do not match the IDs in the target environment
                 // then map them using the settings in the configuration file.
                 if (!AllWebsiteIdsMap())
                 {

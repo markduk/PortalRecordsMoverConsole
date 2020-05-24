@@ -69,7 +69,7 @@ namespace PortalRecordsMover.AppCode
         public long BatchCount { get; set; }
 
         [JsonProperty("SelectedEntities", Required = Required.Default)]
-        public List<string> SelectedEntities { get; set; }
+        public List<string> SelectedEntities { get; set; } = new List<string>();
     }
 
     /// <summary>
