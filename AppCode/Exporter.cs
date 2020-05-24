@@ -215,21 +215,24 @@ namespace PortalRecordsMover.AppCode
                 Criteria = new FilterExpression()
             };
 
-            // filter by either the created on OR the modified on 
-            var dateFilter = new FilterExpression(LogicalOperator.Or);
+            if (settings.Config.CreateFilter.HasValue || settings.Config.ModifyFilter.HasValue)
+            {
+                // filter by either the created on OR the modified on 
+                var dateFilter = new FilterExpression(LogicalOperator.Or);
 
-            if (settings.Config.CreateFilter.HasValue) {
-                dateFilter.Filters.Add(new FilterExpression(LogicalOperator.Or));
-                dateFilter.Conditions.Add(new ConditionExpression("createdon", ConditionOperator.OnOrAfter, settings.Config.CreateFilter.Value.ToString("yyyy-MM-dd")));
+                if (settings.Config.CreateFilter.HasValue) {
+                    dateFilter.Filters.Add(new FilterExpression(LogicalOperator.Or));
+                    dateFilter.Conditions.Add(new ConditionExpression("createdon", ConditionOperator.OnOrAfter, settings.Config.CreateFilter.Value.ToString("yyyy-MM-dd")));
+                }
+
+                if (settings.Config.ModifyFilter.HasValue) {
+                    dateFilter.Filters.Add(new FilterExpression(LogicalOperator.Or));
+                    dateFilter.Conditions.Add(new ConditionExpression("modifiedon", ConditionOperator.OnOrAfter, settings.Config.ModifyFilter.Value.ToString("yyyy-MM-dd")));
+                }
+
+                // add the OR date filter for createdon and modified on
+                query.Criteria.Filters.Add(dateFilter);
             }
-
-            if (settings.Config.ModifyFilter.HasValue) {
-                dateFilter.Filters.Add(new FilterExpression(LogicalOperator.Or));
-                dateFilter.Conditions.Add(new ConditionExpression("modifiedon", ConditionOperator.OnOrAfter, settings.Config.ModifyFilter.Value.ToString("yyyy-MM-dd")));
-            }
-
-            // add the OR date filter for createdon and modified on
-            query.Criteria.Filters.Add(dateFilter);
 
             if (settings.Config.WebsiteFilter != Guid.Empty && emd.Attributes.Any(a => a is LookupAttributeMetadata && ((LookupAttributeMetadata)a).Targets[0] == "adx_website")) {
                 query.Criteria.AddCondition("adx_websiteid", ConditionOperator.Equal, settings.Config.WebsiteFilter);

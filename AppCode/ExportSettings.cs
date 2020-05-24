@@ -220,13 +220,13 @@ namespace PortalRecordsMover.AppCode
             }
             // make sure we have some required values set
             // TODO  look at impact of making this optional?
-            if (settings.Config.WebsiteFilter == Guid.Empty) {
-                throw new ArgumentNullException("WebsiteFilter must be specified");
-            }
+            //if (settings.Config.WebsiteFilter == Guid.Empty) {
+            //    throw new ArgumentNullException("WebsiteFilter must be specified");
+            //}
 
-            if ((settings.Config.CreateFilter == null) && (settings.Config.ModifyFilter == null)) {
-                throw new ArgumentNullException("Either CreateFilter or ModifyFilter must be specified");
-            }
+            //if ((settings.Config.CreateFilter == null) && (settings.Config.ModifyFilter == null)) {
+            //    throw new ArgumentNullException("Either CreateFilter or ModifyFilter must be specified");
+            //}
 
             // make sure we have some required values set
             if (string.IsNullOrEmpty(settings.Config.ImportFilename) && string.IsNullOrEmpty(settings.Config.ExportFilename)) {

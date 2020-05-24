@@ -38,7 +38,7 @@ namespace PortalRecordsMover.AppCode
         [JsonConverter(typeof(ParseStringConverter))]
         public DateFilterOptionsEnum DateFilterOptions { get; set; }
 
-        [JsonProperty("WebsiteFilter", Required = Required.Always)]
+        [JsonProperty("WebsiteFilter", Required = Required.Default)]
         public Guid WebsiteFilter { get; set; }
 
         [JsonProperty("WebsiteIdMapping", Required = Required.Always)]
