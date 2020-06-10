@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>PortalRecordsMover.Console</id>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
     <authors>PortalRecordsMoverConsole authors</authors>
     <owners>PortalRecordsMoverConsole authors</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

@@ -12,7 +12,7 @@ namespace PortalRecordsMover.AppCode
 
         public List<EntityResult> Entities { get; set; }
         public List<EntityResult> NnRecords { get; internal set; }
-        public ExportSettings Settings { get; internal set; }
+        public Settings Settings { get; internal set; }
         public List<Entity> Views { get; internal set; }
     }
 

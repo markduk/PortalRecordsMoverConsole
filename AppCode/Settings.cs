@@ -8,11 +8,11 @@ using System.IO;
 
 namespace PortalRecordsMover.AppCode
 {
-    public class ExportSettings
+    public class Settings
     {
-        public ExportSettings()
+        public Settings()
         {
-            SettingsFileName = "ExportSettings.json";
+            SettingsFileName = "Settings.json";
             Config = new MoverSettingsConfig();
         }
 
@@ -73,9 +73,9 @@ namespace PortalRecordsMover.AppCode
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static ExportSettings InitializeSettings(string[] args)
+        public static Settings InitializeSettings(string[] args)
         {
-            ExportSettings settings = new ExportSettings();
+            var settings = new Settings();
 
             var argsDict = new Dictionary<string, string>();
 

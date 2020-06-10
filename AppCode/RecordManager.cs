@@ -11,12 +11,14 @@ namespace PortalRecordsMover.AppCode
 {
     internal class RecordManager
     {
-        private readonly IOrganizationService service;
         private const int maxErrorLoopCount = 5;
+        private readonly List<EntityReference> recordsToDeactivate;
+        private readonly IOrganizationService service;
 
         public RecordManager(IOrganizationService service)
         {
             this.service = service;
+            recordsToDeactivate = new List<EntityReference>();
         }
 
         public bool ProcessRecords(EntityCollection ec, List<EntityMetadata> emds)
@@ -75,9 +77,23 @@ namespace PortalRecordsMover.AppCode
                     // update the entity progress element 
                     TrackEntityProgress();
 
+                    var name = string.IsNullOrEmpty(entityProgress.Metadata.PrimaryNameAttribute)
+                        ? "(N/A)"
+                        : record.GetAttributeValue<string>(entityProgress.Metadata.PrimaryNameAttribute);
+
                     try
                     {
                         record.Attributes.Remove("ownerid");
+
+                        if (record.Attributes.Contains("statecode") &&
+                            record.GetAttributeValue<OptionSetValue>("statecode").Value == 1)
+                        {
+                            PortalMover.ReportProgress($"Record {name} ({record.Id}) is inactive : Added for deactivation step");
+
+                            recordsToDeactivate.Add(record.ToEntityReference());
+                            record.Attributes.Remove("statecode");
+                            record.Attributes.Remove("statuscode");
+                        }
 
                         // check to see if this is an N:N relation vs a standard record import.
                         if (record.Attributes.Count == 3 && record.Attributes.Values.All(v => v is Guid))

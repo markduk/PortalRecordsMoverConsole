@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <OutputType>Exe</OutputType>
     <TargetFramework>net472</TargetFramework>
@@ -9,7 +9,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>GPL v3</Copyright>
     <PackageId>PortalRecordsMover.Console</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.4</Version>
     <Authors>PortalRecordsMoverConsole authors</Authors>
     <Product>PortalRecordsMoverConsole</Product>
     <Company>N/A</Company>
@@ -17,11 +17,10 @@
     <PackageProjectUrl>https://github.com/markduk/PortalRecordsMover.Console</PackageProjectUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <RepositoryUrl>https://github.com/markduk/PortalRecordsMover.Console</RepositoryUrl>
+    <AssemblyName>PortalRecordsMover.Console</AssemblyName>
+    <RootNamespace>PortalRecordsMover</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="ExportSettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

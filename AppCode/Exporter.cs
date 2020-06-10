@@ -15,12 +15,12 @@ namespace PortalRecordsMover.AppCode
     public class Exporter
     {
         private IOrganizationService _service = null;
-        private ExportSettings _settings = null;
+        private Settings _settings = null;
 
         public IOrganizationService Service { get => _service; set => _service = value; }
-        public ExportSettings Settings { get => _settings; set => _settings = value; }
+        public Settings Settings { get => _settings; set => _settings = value; }
 
-        public Exporter(ExportSettings settings)
+        public Exporter(Settings settings)
         {
             Settings = settings;
             Service = new CrmServiceClient(Settings.SourceConnectionString);
@@ -194,7 +194,7 @@ namespace PortalRecordsMover.AppCode
         /// <param name="emd"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
-        private EntityCollection RetrieveRecordsForEntity(EntityMetadata emd, ExportSettings settings)
+        private EntityCollection RetrieveRecordsForEntity(EntityMetadata emd, Settings settings)
         {
             var req = GetRetieveMultipleRequest(emd, settings);
             var resp = Service.Execute(req) as RetrieveMultipleResponse;
@@ -208,7 +208,7 @@ namespace PortalRecordsMover.AppCode
         /// <param name="emd"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
-        private RetrieveMultipleRequest GetRetieveMultipleRequest(EntityMetadata emd, ExportSettings settings)
+        private RetrieveMultipleRequest GetRetieveMultipleRequest(EntityMetadata emd, Settings settings)
         {
             var query = new QueryExpression(emd.LogicalName) {
                 ColumnSet = new ColumnSet(true),
@@ -268,7 +268,7 @@ namespace PortalRecordsMover.AppCode
         /// <param name="settings"></param>
         /// <param name="records"></param>
         /// <returns></returns>
-        private List<EntityResult> RetrieveNnRecords(ExportSettings settings, List<Entity> records)
+        private List<EntityResult> RetrieveNnRecords(Settings settings, List<Entity> records)
         {
             var ers = new List<EntityResult>();
             var rels = new List<ManyToManyRelationshipMetadata>();

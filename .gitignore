@@ -3,3 +3,5 @@ obj/
 packages/
 .vs/
 *.*.user
+/Properties/launchSettings.json
+/nuget.exe

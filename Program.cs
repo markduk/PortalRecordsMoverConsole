@@ -21,8 +21,8 @@ namespace PortalRecordsMover
 
         static void Main(string[] args) {
             // process the settings from file and then override with command line args, if any
-            ReportProgress("Initializing the ExportSettings");
-            ExportSettings settings = ExportSettings.InitializeSettings(args);
+            ReportProgress("Initializing the Settings");
+            var settings = Settings.InitializeSettings(args);
 
             if (!string.IsNullOrEmpty(settings.Config.ExportFilename)) {
                 ReportProgress($"Beginning the export - SourceEnvironment: {settings.Config.SourceEnvironment}, ExportFilename:{settings.Config.ExportFilename}");

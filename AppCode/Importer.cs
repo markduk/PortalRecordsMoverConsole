@@ -15,13 +15,10 @@ namespace PortalRecordsMover.AppCode
     /// </summary>
     public class Importer
     {
-        private IOrganizationService _service = null;
-        private ExportSettings _settings = null;
+        public IOrganizationService Service { get; set; } = null;
+        public Settings Settings { get; set; } = null;
 
-        public IOrganizationService Service { get => _service; set => _service = value; }
-        public ExportSettings Settings { get => _settings; set => _settings = value; }
-
-        public Importer(ExportSettings settings)
+        public Importer(Settings settings)
         {
             Settings = settings;
             Service = new CrmServiceClient(Settings.TargetConnectionString);
@@ -29,15 +26,28 @@ namespace PortalRecordsMover.AppCode
 
         public void Import()
         {
-            if (!File.Exists(Settings.Config.ImportFilename)) {
-                throw new ApplicationException($"The file {Settings.Config.ImportFilename} does not exist!");
-            }
-
             EntityCollection entities;
+            var pluginManager = new PluginManager(Service);
+            try
+            {
+                if (!File.Exists(Settings.Config.ImportFilename)) {
+                    throw new ApplicationException($"The file {Settings.Config.ImportFilename} does not exist!");
+                }
 
-            InitializeRecordsForImport();
+                PortalMover.ReportProgress($"Import: Deactivating WebPage plugins.");
 
-            DoImport();
+                pluginManager.DeactivateWebpagePlugins();
+
+                InitializeRecordsForImport();
+
+                DoImport();
+            }
+            finally
+            {
+                // Always reactivate WebpagePlugins
+                PortalMover.ReportProgress($"Import: Reactivating WebPage plugins.");
+                pluginManager.ActivateWebpagePlugins();
+            }
 
             void InitializeRecordsForImport() {
 
@@ -53,29 +63,29 @@ namespace PortalRecordsMover.AppCode
                     throw new ApplicationException("No enitites available to import.");
                 }
 
-                // if any of the website IDs to be imported do not match the IDs in the target environment
-                // then map them using the settings in the configuration file.
-                if (!AllWebsiteIdsMap())
-                {
-                    // loop on all of the website Id mappings
-                    foreach (var map in Settings.Config.WebsiteIdMapping) 
-                    {
-                        // find all attributes for the list of entities and update the original ID to that in the mapping 
-                        var attribs = entities.Entities.SelectMany(ent => ent.Attributes)
-                            .Where(a => a.Value is EntityReference && ((EntityReference)a.Value).Id == map.SourceId);
+                //// if any of the website IDs to be imported do not match the IDs in the target environment
+                //// then map them using the settings in the configuration file.
+                //if (!AllWebsiteIdsMap())
+                //{
+                //    // loop on all of the website Id mappings
+                //    foreach (var map in Settings.Config.WebsiteIdMapping) 
+                //    {
+                //        // find all attributes for the list of entities and update the original ID to that in the mapping 
+                //        var attribs = entities.Entities.SelectMany(ent => ent.Attributes)
+                //            .Where(a => a.Value is EntityReference && ((EntityReference)a.Value).Id == map.SourceId);
 
-                        // update each with the mapped ID
-                        foreach (var attr in attribs) {
-                            ((EntityReference)attr.Value).Id = map.TargetId;
-                        }
-                    }
-                }
+                //        // update each with the mapped ID
+                //        foreach (var attr in attribs) {
+                //            ((EntityReference)attr.Value).Id = map.TargetId;
+                //        }
+                //    }
+                //}
 
-                // now, check again... 
-                // TODO throw exception here or just ignore and remove the items?
-                if (!AllWebsiteIdsMap()) {
-                    throw new ApplicationException("Records selected for import do not map to websites in the target system");
-                }
+                //// now, check again... 
+                //// TODO throw exception here or just ignore and remove the items?
+                //if (!AllWebsiteIdsMap()) {
+                //    throw new ApplicationException("Records selected for import do not map to websites in the target system");
+                //}
             }
 
             void DoImport()
@@ -91,23 +101,23 @@ namespace PortalRecordsMover.AppCode
                 rm.ProcessRecords(entities, Settings.AllEntities);
             };
 
-            // query the list of records being imported and the list of websites in the target system
-            // return whether all of the IDs map or not.
-            bool AllWebsiteIdsMap() {
+            //// query the list of records being imported and the list of websites in the target system
+            //// return whether all of the IDs map or not.
+            //bool AllWebsiteIdsMap() {
 
-                // check to see if we have any source website IDs that do not match the target environment 
-                var webSitesId = entities.Entities.SelectMany(e => e.Attributes)
-                        .Where(a => a.Value is EntityReference && ((EntityReference)a.Value).LogicalName == "adx_website")
-                        .Select(a => ((EntityReference)a.Value).Id)
-                        .Distinct()
-                        .ToList();
+            //    // check to see if we have any source website IDs that do not match the target environment 
+            //    var webSitesId = entities.Entities.SelectMany(e => e.Attributes)
+            //            .Where(a => a.Value is EntityReference && ((EntityReference)a.Value).LogicalName == "adx_website")
+            //            .Select(a => ((EntityReference)a.Value).Id)
+            //            .Distinct()
+            //            .ToList();
 
-                var targetWebSites = Service.RetrieveMultiple(new QueryExpression("adx_website") {
-                    ColumnSet = new ColumnSet("adx_name")
-                }).Entities;
+            //    var targetWebSites = Service.RetrieveMultiple(new QueryExpression("adx_website") {
+            //        ColumnSet = new ColumnSet("adx_name")
+            //    }).Entities;
 
-                return webSitesId.All(id => targetWebSites.Select(w => w.Id).Contains(id));
-            }
+            //    return webSitesId.All(id => targetWebSites.Select(w => w.Id).Contains(id));
+            //}
         }
     }
 }
