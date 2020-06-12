@@ -5,3 +5,4 @@ packages/
 *.*.user
 /Properties/launchSettings.json
 /nuget.exe
+*.nupkg

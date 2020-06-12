@@ -63,6 +63,13 @@ namespace PortalRecordsMover.AppCode
                                 }
                             }
                         }
+
+                        foreach (var va in validAttributes)
+                        {
+                            //add any null attributes to force them to update to null.
+                            if (!record.Contains(va))
+                                record[va] = null;
+                        }
                     }
                 }
             }
@@ -212,7 +219,7 @@ namespace PortalRecordsMover.AppCode
         {
             var query = new QueryExpression(emd.LogicalName) {
                 ColumnSet = new ColumnSet(true),
-                Criteria = new FilterExpression()
+                Criteria = new FilterExpression { Filters = { new FilterExpression(LogicalOperator.Or) } }
             };
 
             if (settings.Config.CreateFilter.HasValue || settings.Config.ModifyFilter.HasValue)

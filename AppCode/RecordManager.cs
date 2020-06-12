@@ -5,6 +5,7 @@ using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Xrm.Sdk.Query;
 using PortalRecordsMover.AppCode;
 
 namespace PortalRecordsMover.AppCode
@@ -192,5 +193,219 @@ namespace PortalRecordsMover.AppCode
             }
             return false;
         }
+
+        public EntityCollection RetrieveRecords(EntityMetadata emd, Settings settings)
+        {
+            var query = new QueryExpression(emd.LogicalName)
+            {
+                ColumnSet = new ColumnSet(true),
+                Criteria = new FilterExpression { Filters = { new FilterExpression(LogicalOperator.Or) } }
+            };
+
+            if (settings.Config.CreateFilter.HasValue)
+            {
+                query.Criteria.Filters[0].AddCondition("createdon", ConditionOperator.OnOrAfter, settings.Config.CreateFilter.Value.ToString("yyyy-MM-dd"));
+            }
+
+            if (settings.Config.ModifyFilter.HasValue)
+            {
+                query.Criteria.Filters[0].AddCondition("modifiedon", ConditionOperator.OnOrAfter, settings.Config.ModifyFilter.Value.ToString("yyyy-MM-dd"));
+            }
+
+            if (settings.Config.WebsiteFilter != Guid.Empty)
+            {
+                var lamd = emd.Attributes.FirstOrDefault(a =>
+                    a is LookupAttributeMetadata metadata && metadata.Targets[0] == "adx_website");
+                if (lamd != null)
+                {
+                    query.Criteria.AddCondition(lamd.LogicalName, ConditionOperator.Equal, settings.Config.WebsiteFilter);
+                }
+                else
+                {
+                    switch (emd.LogicalName)
+                    {
+                        case "adx_webfile":
+                            var noteLe = new LinkEntity
+                            {
+                                LinkFromEntityName = "adx_webfile",
+                                LinkFromAttributeName = "adx_webfileid",
+                                LinkToAttributeName = "objectid",
+                                LinkToEntityName = "annotation",
+                                LinkCriteria = new FilterExpression(LogicalOperator.Or)
+                            };
+
+                            bool addLinkEntity = false;
+
+                            if (settings.Config.CreateFilter.HasValue)
+                            {
+                                noteLe.LinkCriteria.AddCondition("createdon", ConditionOperator.OnOrAfter, settings.Config.CreateFilter.Value.ToString("yyyy-MM-dd"));
+                                addLinkEntity = true;
+                            }
+
+                            if (settings.Config.ModifyFilter.HasValue)
+                            {
+                                noteLe.LinkCriteria.AddCondition("modifiedon", ConditionOperator.OnOrAfter, settings.Config.ModifyFilter.Value.ToString("yyyy-MM-dd"));
+                                addLinkEntity = true;
+                            }
+
+                            if (addLinkEntity)
+                            {
+                                query.LinkEntities.Add(noteLe);
+                            }
+                            break;
+
+                        case "adx_entityformmetadata":
+                            query.LinkEntities.Add(
+                                CreateParentEntityLinkToWebsite(
+                                    emd.LogicalName,
+                                    "adx_entityform",
+                                    "adx_entityformid",
+                                    "adx_entityform",
+                                    settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_webformmetadata":
+                            var le = CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_webformstep",
+                                "adx_webformstepid",
+                                "adx_webformstep",
+                                Guid.Empty);
+
+                            le.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                "adx_webformstep",
+                                "adx_webform",
+                                "adx_webformid",
+                                "adx_webform",
+                                settings.Config.WebsiteFilter));
+
+                            query.LinkEntities.Add(le);
+                            break;
+
+                        case "adx_weblink":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_weblinksetid",
+                                "adx_weblinksetid",
+                                "adx_weblinkset",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_blogpost":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_blogid",
+                                "adx_blogid",
+                                "adx_blog",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_communityforumaccesspermission":
+                        case "adx_communityforumannouncement":
+                        case "adx_communityforumthread":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_forumid",
+                                "adx_communityforumid",
+                                "adx_communityforum",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_communityforumpost":
+                            var lef = CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_forumthreadid",
+                                "adx_communityforumthreadid",
+                                "adx_communityforumthread",
+                                Guid.Empty);
+
+                            lef.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                "adx_communityforumthread",
+                                "adx_forumid",
+                                "adx_communityforumid",
+                                "adx_communityforum",
+                                settings.Config.WebsiteFilter));
+
+                            query.LinkEntities.Add(lef);
+
+                            break;
+
+                        case "adx_idea":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_ideaforumid",
+                                "adx_ideaforumid",
+                                "adx_ideaforum",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_pagealert":
+                        case "adx_webpagehistory":
+                        case "adx_webpagelog":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_webpageid",
+                                "adx_webpageid",
+                                "adx_webpage",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_pollsubmission":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_pollid",
+                                "adx_pollid",
+                                "adx_poll",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_webfilelog":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_webfileid",
+                                "adx_webfileid",
+                                "adx_webfile",
+                                settings.Config.WebsiteFilter));
+                            break;
+
+                        case "adx_webformsession":
+                        case "adx_webformstep":
+                            query.LinkEntities.Add(CreateParentEntityLinkToWebsite(
+                                emd.LogicalName,
+                                "adx_webform",
+                                "adx_webformid",
+                                "adx_webform",
+                                settings.Config.WebsiteFilter));
+                            break;
+                    }
+                }
+            }
+
+            if (settings.Config.ActiveItemsOnly && emd.LogicalName != "annotation")
+            {
+                query.Criteria.AddCondition("statecode", ConditionOperator.Equal, 0);
+            }
+
+            return service.RetrieveMultiple(query);
+        }
+
+        private LinkEntity CreateParentEntityLinkToWebsite(string fromEntity, string fromAttribute, string toAttribute, string toEntity, Guid websiteId)
+        {
+            var le = new LinkEntity
+            {
+                LinkFromEntityName = fromEntity,
+                LinkFromAttributeName = fromAttribute,
+                LinkToAttributeName = toAttribute,
+                LinkToEntityName = toEntity,
+            };
+
+            if (websiteId != Guid.Empty)
+            {
+                le.LinkCriteria.AddCondition("adx_websiteid", ConditionOperator.Equal, websiteId);
+            }
+
+            return le;
+        }
+
     }
 }

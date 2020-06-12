@@ -41,7 +41,7 @@ namespace PortalRecordsMover.AppCode
         [JsonProperty("WebsiteFilter", Required = Required.Default)]
         public Guid WebsiteFilter { get; set; }
 
-        [JsonProperty("WebsiteIdMapping", Required = Required.Always)]
+        [JsonProperty("WebsiteIdMapping", Required = Required.Default)]
         public List<WebsiteIdMap> WebsiteIdMapping { get; set; }
 
         [JsonProperty("ExportFilename", Required = Required.Default)]
